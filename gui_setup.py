@@ -3,17 +3,13 @@ from PyQt6.QtCore import Qt
 
 from PyQt6.QtWidgets import QApplication, QTabWidget, QWidget, QVBoxLayout, QHBoxLayout, QLabel,QPushButton,QListWidget,QRadioButton,QGraphicsScene, QGraphicsView, QGraphicsPixmapItem
 from PyQt6.QtGui import QPixmap, QFont
-
-class gui_setup(QWidget):
+from gui_functions import gui_functions
+class gui_setup(gui_functions):
     def __init__(self):
 
         super().__init__()
 
 
-        self.notes = {}
-        self.noteson = []
-        self.notesoff = []
-        for note in range(48, 101): self.notes[note] = QLabel(self)
         with open('data.pkl', 'rb') as file: self.Theory2 = pickle.load(file)
 
         self.setWindowTitle('Piano Training')
@@ -42,9 +38,11 @@ class gui_setup(QWidget):
 
 
         self.listselector2 = QListWidget()
-        self.listselector2.addItems(["Naturals","Sharps","Flats","Major", "Minor","Melodic","Harmonic"])
+        #self.listselector2.addItems(["Naturals","Sharps","Flats","Major", "Minor","Melodic","Harmonic"])
         self.listselector3 = QListWidget()
-
+        self.listselector1.itemSelectionChanged.connect(self.theorychanged)
+        self.listselector2.itemSelectionChanged.connect(self.theorysubtypechanged)
+        self.listselector1.clicked.connect(self.theory_type_clicked)
 
         # self.keyboard_label = QLabel("")
         # self.keyboard_label.setPixmap(QPixmap("/Users/williamcorney/PycharmProjects/Oralia2/Images/keys.png"))
@@ -67,6 +65,7 @@ class gui_setup(QWidget):
         self.score_label = QLabel("Score :")
         self.score_value = QLabel("1")
         self.go_button = QPushButton("Go")
+        self.go_button.clicked.connect(self.go_button_clicked)
         self.practical_tab.horizontal.vertical.addWidget(self.key_label)
         self.practical_tab.horizontal.vertical.addWidget(self.inversion_label)
         self.practical_tab.horizontal.vertical.addWidget(self.fingering_label)
@@ -121,11 +120,46 @@ class gui_setup(QWidget):
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self.tab_widget)
 
+    def theorychanged (self):
+        self.theorymode = (self.listselector1.selectedItems()[0].text())
 
-        self.pixmap_item = QGraphicsPixmapItem(QPixmap("/Users/williamcorney/PycharmProjects/Oralia3/Images/key_green_left.png"))
+    def theorysubtypechanged(self):
+        self.theory_subtype = self.listselector2.selectedItems()
 
-        self.scene.addItem(self.pixmap_item)
+        self.theory_subtype_list = [item.text() for item in self.theory_subtype]
 
+
+
+        match self.theorymode:
+            case "Notes":
+                pass
+            case "Scales":
+                pass
+            case "Triads":
+                self.listselector3.clear()
+                self.listselector3.addItems(["Root", "First", "Second"])
+            case "Sevenths":
+                self.listselector3.clear()
+                self.listselector3.addItems(["Root", "First", "Second", "Third"])
+
+    def theory_type_clicked(self):
+        self.listselector3.clear()
+        self.listselector2.clear()
+        match self.listselector1.currentItem().text():
+
+            case "Notes":
+                self.listselector2.addItems(["Naturals", "Sharps", "Flats"])
+            case "Scales":
+                self.listselector2.addItems(["Major", "Minor", "Melodic Minor", "Harmonic Minor"])
+            case "Triads":
+                self.listselector2.addItems(["Major", "Minor"])
+            case "Sevenths":
+                self.listselector2.addItems(["Maj7", "Min7", "7", "Dim7", "m7f5"])
+            case "Modes":
+                self.listselector2.addItems(
+                    ["Ionian", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolian", "Locrian"])
+            case "Keys":
+                self.listselector2.addItems(["Major", "Minor"])
     def create_piano (self):
         # Create a QGraphicsScene
         self.scene = QGraphicsScene()

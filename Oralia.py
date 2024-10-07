@@ -1,7 +1,11 @@
 import mido,os
 from PyQt6.QtWidgets import QApplication
-from gui_functions import gui_functions
-class MainApp(gui_functions):
+from gui_setup import gui_setup
+from PyQt6.QtCore import QTimer
+from functools import partial
+
+
+class MainApp(gui_setup):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Oralia')
